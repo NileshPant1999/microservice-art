@@ -1,5 +1,5 @@
 import jwt, datetime, os
-from flask import Flask
+from flask import Flask, request
 from flask_mysqldb import MySQL
 
 # Create a Flask server
@@ -35,7 +35,7 @@ def login():
         if auth.username != email or auth.password != password:
             return 'invalid credentials', 401
         else:
-            return createJWT(auth.username, os.environ.get(JWT_SECRET), True)
+            return createJWT(auth.username, os.environ.get("JWT_SECRET"), True)
 
     else:
         return "invalid credentails", 401
