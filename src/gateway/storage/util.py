@@ -1,9 +1,11 @@
+import logging
 import pika, json
 
 
 def upload(f, fs, channel, access):
     try:
         fid = fs.put(f)
+        logging.debug(f'this is fid: {fid}')
     except Exception as err:
         print(err)
         return "internal server error", 500
@@ -13,6 +15,7 @@ def upload(f, fs, channel, access):
         "mp3_fid": None,
         "username": access["username"],
     }
+    print('i am here', message)
 
     try:
         channel.basic_publish(

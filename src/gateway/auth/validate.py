@@ -15,6 +15,7 @@ def token(request):
         headers={"Authorization": token},
     )
 
+    print('i am here is this true')
     if response.status_code == 200:
         return response.text, None
     else:

@@ -7,10 +7,16 @@ from storage import util
 from bson.objectid import ObjectId
 
 server = Flask(__name__)
+server.debug = True
 
-mongo_video = PyMongo(server, uri="mongodb://host.minikube.internal:27017/videos")
+server.logger.info("This is an info log message")
 
-mongo_mp3 = PyMongo(server, uri="mongodb://host.minikube.internal:27017/mp3s")
+
+uri_video = "mongodb+srv://nileshpant112:MbnQSoDSsZw6gMRU@cluster0.8vagp.mongodb.net/videos?retryWrites=true&w=majority&appName=Cluster0"
+uri_mp3 = "mongodb+srv://nileshpant112:MbnQSoDSsZw6gMRU@cluster0.8vagp.mongodb.net/mp3s?retryWrites=true&w=majority&appName=Cluster0"
+
+mongo_video = PyMongo(server, uri=uri_video)
+mongo_mp3 = PyMongo(server, uri=uri_mp3)
 
 fs_videos = gridfs.GridFS(mongo_video.db)
 fs_mp3s = gridfs.GridFS(mongo_mp3.db)
@@ -37,12 +43,14 @@ def upload():
         return err
 
     access = json.loads(access)
-
+    server.logger.debug('loaded access token', access['username'], access['admin'])
+        
     if access["admin"]:
         if len(request.files) > 1 or len(request.files) < 1:
             return "exactly 1 file required", 400
 
         for _, f in request.files.items():
+            server.logger.debug('Debug message inside upload', f, fs_videos)
             err = util.upload(f, fs_videos, channel, access)
 
             if err:
@@ -52,6 +60,9 @@ def upload():
     else:
         return "not authorized", 401
 
+@server.route("/ready", methods=["GET"])
+def ready():
+    return 'ready', 200
 
 @server.route("/download", methods=["GET"])
 def download():
